@@ -17,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class BaseService{
 
 	public boolean removeFile(String fileName) {
-		File file = new File("G:/LMS_DROOLES/DroolsPluginForLms/src/main/resources/rules/"+fileName);
+		File file = new File("F:/IMRAN_HOSSAIN/LMS/LMS_DROOLES_PLUGIN/DroolsPluginForLms/src/main/resources/rules/"+fileName);
 		return file.delete();
 	}
 
@@ -48,7 +48,7 @@ public class BaseService{
 			Random generator = new Random();
 			int r = Math.abs(generator.nextInt());
 			uniqName = r + "_" + (String) fileName;
-			File dir = new File("G:/LMS_DROOLES/DroolsPluginForLms/src/main/resources/rules/");
+			File dir = new File("F:/IMRAN_HOSSAIN/LMS/LMS_DROOLES_PLUGIN/DroolsPluginForLms/src/main/resources/rules/");
 			// Create the file on server
 			File serverFile = new File(dir.getAbsolutePath() + File.separator + uniqName);
 			BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(serverFile));

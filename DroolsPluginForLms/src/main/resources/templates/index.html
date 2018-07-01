@@ -50,13 +50,9 @@
 <div class="container">
  <div class="row" style="margin-top:100px">
   <div class="col-md-8 col-md-offset-2">
-  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addfileModal">
+  <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#addfileModal">
 		  Add File Modal
    </button>
-        <p>
-        <a type="button" class="btn btn-info pull-right" href="/create">Add File</a>
-        </p>
-
 		    <h2>Drools file List</h2>
 		  <table class="table table-striped" id="droolsFileListTable">
 		    <thead>
@@ -80,7 +76,8 @@
 <div class="modal fade" id="addfileModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
    <form id="create-form">
-     <input type="hidden" name="id"  id="id" />
+     <input type="hidden" name="id"  id="id"/>
+     <input type="hidden" name="currentFile"  id="currentFile"/>
     <div class="modal-content">
       <div class="modal-header">
         <h4 class="modal-title" id="exampleModalLabel">File Information</h4>
@@ -99,7 +96,7 @@
 		 </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary" onClick="closeModal()">Close</button>
   	<button type="button" id="bRef" class="btn btn-sm" onClick="addData();">Save</button>
       </div>
     </div>

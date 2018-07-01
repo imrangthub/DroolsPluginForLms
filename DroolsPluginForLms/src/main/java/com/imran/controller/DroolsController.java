@@ -2,16 +2,12 @@ package com.imran.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import com.imran.model.BookAuthor;
 import com.imran.model.DroolsFileEntity;
 import com.imran.service.DroolsService;
 
@@ -31,19 +26,22 @@ public class DroolsController {
 	@Autowired
 	DroolsService droolsService;
 	
-	@GetMapping(value="/list",produces={MediaType.APPLICATION_JSON_VALUE})
-	public ResponseEntity<List<DroolsFileEntity>> list(){
-		return new ResponseEntity<List<DroolsFileEntity>>(droolsService.droolsList(), HttpStatus.OK);
-
-	}
+	
 	
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String dashboard(ModelMap map) {
 		return "index";
 	}
 	
+	@GetMapping(value="/list",produces={MediaType.APPLICATION_JSON_VALUE})
+	public ResponseEntity<List<DroolsFileEntity>> list(){
+		return new ResponseEntity<List<DroolsFileEntity>>(droolsService.droolsList(), HttpStatus.OK);
+
+	}
+	
 	@RequestMapping(value="/save", method = RequestMethod.POST)
-	public @ResponseBody Map<String, Object> addBook(ModelMap map, @RequestParam("file") MultipartFile file,
+	public @ResponseBody Map<String, Object> add(ModelMap map, 
+			@RequestParam(value ="file",  required = false) MultipartFile file,
 			@RequestParam("title") String title){
 		Map<String, Object> result = new HashMap<String, Object>();
 		DroolsFileEntity droolsFileObj;
@@ -52,7 +50,7 @@ public class DroolsController {
 			  result.put("message","Title Must hava a value");
 			  return result;
 		}
-		if (!file.getOriginalFilename().trim().equals("")) {
+		if (file != null) {
 			boolean formateCheck = droolsService.checkFile(file);
 			if (!formateCheck) {
 				  result.put("isError", Boolean.FALSE);
@@ -76,92 +74,57 @@ public class DroolsController {
 		return result;
 	}
 	
-	
-	@RequestMapping(value = "/create", method = RequestMethod.GET)
-	public String viewCreate(Model map) {
-		map.addAttribute("droolsFileEntity",new DroolsFileEntity());
-		return "create";
-	}
-
-	@RequestMapping(value = "/create", method = RequestMethod.POST)
-	public String createPost(ModelMap map, @RequestParam("file") MultipartFile file,
-			@RequestParam("title") String title) throws Exception {
-		
-		DroolsFileEntity droolsFileObj;
-		
-		if (title.equals("")) {
-			map.addAttribute("message", "Require field  is Empty");
-			return "redirect:/create";
-		}
-		if (!file.getOriginalFilename().equals("")) {
-			boolean formateCheck = droolsService.checkFile(file);
-
-			if (!formateCheck) {
-				map.addAttribute("message", "Invalid file formate");
-				return "redirect:/create";
-			}
-			String uploadedFileName = droolsService.uploadFileName(file);
-			if (uploadedFileName != null) {
-				droolsFileObj = new DroolsFileEntity(title, uploadedFileName);
-				droolsService.createOrUpdateDrools(droolsFileObj);
-			}
-
-		} else {
-			map.addAttribute("message", "File not Found");
-			return "redirect:/create";
-		}
-
-		map.addAttribute("message", "File dded Successfully");
-		return "redirect:/";
+	@GetMapping(value="/edit/{id}",produces={MediaType.APPLICATION_JSON_VALUE})
+	public ResponseEntity<DroolsFileEntity> editView(ModelMap map, @PathVariable("id") long id){
+		return new ResponseEntity<DroolsFileEntity>(droolsService.findByDroolstId(id), HttpStatus.OK);
 
 	}
 	
-	@RequestMapping(value="/edit/{id}")
-	public String editView(ModelMap map, @PathVariable("id") long id){
-		DroolsFileEntity droolsFileEntity =  droolsService.findByDroolstId(id);
-		if(droolsFileEntity == null){
-			map.addAttribute("message", "Rules not found");	
-			return "redirect:/";
-		}
-		map.put("droolsFileEntity",droolsFileEntity);
-		return "edit";
-	}
-	
-	@RequestMapping(value = "/update", method = RequestMethod.POST)
-	public String updatePost(ModelMap map, @RequestParam("file") MultipartFile file,
-			@RequestParam("title") String title, @RequestParam("id") String id,  @RequestParam("drools_file") String drools_file) throws Exception {
-		DroolsFileEntity droolsFileEntity;
-		System.out.println("Title: "+title+" Id: "+id+" currentFile: "+drools_file);
+	@RequestMapping(value="/update", method = RequestMethod.POST)
+	public @ResponseBody Map<String, Object> update(ModelMap map, 
+			@RequestParam(value ="file",  required = false) MultipartFile file,
+			@RequestParam("title") String title, 
+			@RequestParam("id") Long id,
+			@RequestParam("currentFile") String currentFile){
 		
-		if (title.equals("")) {
-			map.addAttribute("message", "Require field is Empty");
-			return "redirect:/";
+		System.out.println("title: "+title+" Id: "+id+" CurrentFjile: "+currentFile);
+		
+		Map<String, Object> result = new HashMap<String, Object>();
+	
+		if (title.equals("") && id>0) {
+			  result.put("isError", Boolean.FALSE);
+			  result.put("message","Title Must hava a value");
+			  return result;
 		}
-		if (!file.getOriginalFilename().equals("")) {
+		if (file!=null) {
 			boolean formateCheck = droolsService.checkFile(file);
 			if (!formateCheck) {
-				map.addAttribute("message", "Invalid file formate");
-				return "redirect:/";
+				  result.put("isError", Boolean.FALSE);
+				  result.put("message","Invalid file formate");
+				  return result;
 			}
+			droolsService.removeFile(currentFile);
 			String uploadedFileName = droolsService.uploadFileName(file);
 			if (uploadedFileName != null) {
-				droolsFileEntity = new DroolsFileEntity(Integer.parseInt(id), title, uploadedFileName);
-				droolsService.updateDrools(droolsFileEntity);
-				droolsService.removeFile(drools_file);
-			    map.addAttribute("message", "Update Successfully");
-			    return "redirect:/";
+				DroolsFileEntity droolsFileObj = new DroolsFileEntity();
+				droolsFileObj.setId(id);
+				droolsFileObj.setTitle(title);
+				droolsFileObj.setDrools_file(uploadedFileName);				
+				droolsService.updateDrools(droolsFileObj);				
+			  result.put("isError", Boolean.FALSE);
+			  result.put("message"," Successfully Update with File");
+			  return result;
 			}
 
-		} else {
-			droolsFileEntity = new DroolsFileEntity(Integer.parseInt(id), title, drools_file);
-			droolsService.updateDrools(droolsFileEntity);
-            map.addAttribute("message", "Update Successfully");
-			return "redirect:/";
-		}
-
-		map.addAttribute("message", "Update Successfully");
-		return "redirect:/";
-
+		} 
+		    DroolsFileEntity droolsFileObj = new DroolsFileEntity();
+			droolsFileObj.setId(id);
+			droolsFileObj.setTitle(title);
+			droolsFileObj.setDrools_file(currentFile);				
+			droolsService.updateDrools(droolsFileObj);				
+	    result.put("isError", Boolean.FALSE);
+	    result.put("message"," Successfully Update with out File");
+	    return result;
 	}
 	
 	@ResponseBody
