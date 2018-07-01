@@ -140,6 +140,7 @@ public class DroolsController {
 		droolsService.removeDrools(id);
 		return  "Successfully deleted";
 	}
+
 	
 	
 }

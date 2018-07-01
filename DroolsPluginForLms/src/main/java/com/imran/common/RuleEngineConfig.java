@@ -6,11 +6,8 @@ import org.kie.api.builder.KieRepository;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.internal.io.ResourceFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import com.imran.service.DroolsService;
 
 @Configuration
 public class RuleEngineConfig {

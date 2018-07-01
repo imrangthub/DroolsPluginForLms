@@ -8,16 +8,26 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Random;
 
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 
 @Service
 public class BaseService{
+	
+	
+	
+	public String getDroolsPath(){
+		ClassLoader classLoader = getClass().getClassLoader();
+	    URL rulesFolderResource = classLoader.getResource("rules");
+	    File folderPath = new File(rulesFolderResource.getFile());		
+		File dir = new File(folderPath.getAbsolutePath());		
+		return dir.getAbsolutePath();
+	}
 
-	public boolean removeFile(String fileName) {
-		File file = new File("F:/IMRAN_HOSSAIN/LMS/LMS_DROOLES_PLUGIN/DroolsPluginForLms/src/main/resources/rules/"+fileName);
+	
+	public boolean removeFile(String fileName) {	
+		File file = new File(getDroolsPath()+ File.separator +fileName);
 		return file.delete();
 	}
 
@@ -48,9 +58,7 @@ public class BaseService{
 			Random generator = new Random();
 			int r = Math.abs(generator.nextInt());
 			uniqName = r + "_" + (String) fileName;
-			File dir = new File("F:/IMRAN_HOSSAIN/LMS/LMS_DROOLES_PLUGIN/DroolsPluginForLms/src/main/resources/rules/");
-			// Create the file on server
-			File serverFile = new File(dir.getAbsolutePath() + File.separator + uniqName);
+			File serverFile = new File(getDroolsPath() + File.separator + uniqName);
 			BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(serverFile));
 			stream.write(bytes);
 			stream.close();
@@ -59,7 +67,6 @@ public class BaseService{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 		return uniqName;
 	}
 
